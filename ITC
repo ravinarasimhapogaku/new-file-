@@ -1,0 +1,247 @@
+from tkinter import *
+from tkinter import ttk
+from tkinter import messagebox
+import os
+from tkinter import font
+
+
+
+
+root = Tk()
+root.title("User Form")
+
+# Set font
+my_font = font.Font(family="Times New Roman", size=16)
+frame = Frame(root, bd=2, relief=SUNKEN)
+frame.place(relx=0.5, rely=0.5, anchor=CENTER)
+# Title label
+title_label = Label(frame, text="User Form", font=my_font)
+title_label.grid(row=0, column=0, columnspan=2)
+
+# Name label and entry
+name_label = Label(frame, text="Name:", font=my_font)
+name_label.grid(row=1, column=0)
+name_entry = Entry(frame, font=my_font)
+name_entry.grid(row=1, column=1)
+
+# Gender label and check buttons
+gender_label = Label(frame, text="Gender:", font=my_font)
+gender_label.grid(row=2, column=0)
+male_var = IntVar()
+Checkbutton(frame, text="Male", variable=male_var, font=my_font).grid(row=2, column=1)
+female_var = IntVar()
+Checkbutton(frame, text="Female", variable=female_var, font=my_font).grid(row=2, column=2)
+
+# State label and option menu
+
+options = [   "select state","Andhra Pradesh",
+              "Arunachal Pradesh","Assam","Bihar",
+            "Chhattisgarh","Goa","Gujarat","Haryana",
+            "Himachal Pradesh","Jharkhand","Karnataka",
+            "Kerala","Madhya Pradesh","Maharashtra",
+             "Manipur","Meghalaya","Mizoram",
+             "Nagaland","Odisha","Punjab",
+              "Rajasthan","Sikkim","Tamil Nadu",
+               "Telangana","Tripura","Uttar Pradesh",
+                "Uttarakhand","West Bengal"]
+combobox = ttk.Combobox(frame, values=options)
+combobox.current(0)
+combobox.bind("<<ComboboxSelected>>")
+combobox.grid(row=4, column=1)
+
+state_label = Label(frame, text="State:", font=my_font)
+state_label.grid(row=4, column=0)
+
+# City label and entry
+city_label = Label(frame, text="City:", font=my_font)
+city_label.grid(row=6, column=0)
+city_entry = Entry(frame, font=my_font)
+city_entry.grid(row=6, column=1)
+
+
+
+
+from datetime import datetime
+
+
+# Age label and entry
+Label(frame,text="Date of Birth:").grid(row=3,column=0)
+
+dob_entry = Entry(frame)
+dob_entry.grid(row=3,column=1)
+
+date_str = dob_entry.get()
+if date_str:
+    try:
+        date_obj = datetime.strptime(date_str, '%d/%m/%Y')
+        today = datetime.now()
+        age = today.year - date_obj.year - ((today.month, today.day) < (date_obj.month, date_obj.day))
+    except ValueError:
+        # Handle invalid date format
+        print("Invalid date format. Please enter the date in the format 'dd/mm/yyyy'")
+else:
+    # Handle empty date string
+    print("Please enter a date")
+
+
+options = ["select occupation", "Agriculture", "public sector", "private sector"]
+combobox = ttk.Combobox(frame, values=options)
+combobox.current(1)
+combobox.bind("<<ComboboxSelected>>")
+combobox.grid(row=5, column=1)
+occupation_label = Label(frame, text="Occupation:", font=my_font)
+occupation_label.grid(row=5, column=0)
+
+def on_select(event):
+    if event.widget.get() == "Agriculture":
+        messagebox.showwarning
+        ("Warning", "Under Section 10 (1) of the Income Tax Act, 1961, any income generated from any agricultural activities are exempted from being taxed by the Government.")
+
+combobox.bind('<<ComboboxSelected>>', on_select)
+
+
+
+# Terms and conditions check button
+terms_var = IntVar()
+Checkbutton(frame,text="I agree to the terms and conditions",variable=terms_var).grid(row=9,columnspan=2)
+
+
+def reset():
+    
+    name_entry.delete(0,'end')
+    male_var.set(0)
+    female_var.set(0)
+    state_var.set("select state")
+    occupation_var.set("select occupation")
+    city_entry.delete(0,'end')
+    age_entry.delete(0,'end')
+    income_entry.delete(0,'end')
+    terms_var.set(0)
+    
+
+def submit():
+    if not name_entry.get():
+        messagebox.showerror("Error", "Please enter your name")
+        return
+   
+    if not dob_entry.get():
+        messagebox.showerror("Error", "Please enter your date of birth")
+        return
+    
+    
+        dob = datetime.strptime(dob_entry.get(), '%d/%m/%Y')
+        age = calculate_age(dob)
+    if  age < 18 or age > 70:
+        messagebox.showerror("Error", "Not eligible for income tax guidelines")
+        return
+   
+   
+
+# Submit button
+
+submit_button = Button(frame, text="Submit", command=submit)
+submit_button.grid(row=11, column=0, columnspan=2)
+
+
+# Reset button
+reset_button = Button(frame,text="Reset",command=reset)
+reset_button.grid(row=12,columnspan=2)
+
+# to calculate
+
+def calculate():
+    name = name_entry.get()
+    
+    date_str = dob_entry.get()
+    date_obj = datetime.strptime(date_str, '%d/%m/%Y')
+    today = datetime.now()
+    age = today.year - date_obj.year - ((today.month, today.day) < (date_obj.month, date_obj.day))
+    
+    if male_var.get() == 1:
+        gender = "Male"
+    elif female_var.get() == 1:
+        gender = "Female"
+    else:
+        gender = "Unknown"
+        
+    income = int(monthly_income_entry.get())
+    monthly_income = float(monthly_income_entry.get())
+    annual_income = monthly_income * 12
+    annual_income_label.config(text=f"Annual Income: ₹{annual_income:.2f}")
+
+    if annual_income <= 250000:
+        tax = 0
+    elif annual_income <= 500000:
+        tax = (annual_income - 250000) * 0.05
+    elif annual_income <= 1000000:
+        tax = (annual_income - 500000) * 0.2 + 12500
+    else:
+        tax = (annual_income - 1000000) * 0.3 + 112500
+
+    tax_label.config(text=f"Income Tax: ₹{tax:.2f}")
+
+    save_data(name, age, gender, income, tax)
+    messagebox.showinfo("Tax", f"Your Tax is {tax}")
+    
+    
+def view_data():
+    if not os.path.exists("tax_data.txt"):
+        messagebox.showerror("Error", "No data found")
+        return
+
+    with open("tax_data.txt", "r") as f:
+        data = f.read().strip()
+
+    if not data:
+        messagebox.showerror("Error", "No data found")
+        return
+    
+def save_data(name, age, gender, income, tax):
+    # Read the data from the file
+    with open('data.txt', 'r') as f:
+        data = f.read()
+
+    # Split the data into rows
+    rows = data.split("\n")
+
+    # Initialize the result variable
+    result = ""
+
+    # Process each row
+    for row in rows:
+        # Split the row into values
+        values = row.split(",")
+
+        # Check if the row contains enough values
+        if len(values) == 5:
+            # Unpack the values
+            name, age, gender, income, tax = values
+
+            # Format the result string
+            result += f"Name: {name}, Age: {age}, Gender: {gender}, Income: {income}, Tax: {tax}\n"
+
+    # Display the result in a message box
+    messagebox.showinfo("Tax Data", result)
+    
+# label for input
+monthly_income_label = Label(frame, text="Monthly Income (₹):")
+monthly_income_label.grid(row=16, column=0)
+
+monthly_income_entry = Entry(frame)
+monthly_income_entry.grid(row=16, column=1)
+
+calculate_button = Button(frame, text="Calculate", command=calculate)
+calculate_button.grid(row=14, column=0, columnspan=2)
+
+#view_tax = Button(frame,text="View Tax Data",font=("Arial",18),command=view_data)
+#view_tax.grid(row=18,column=1)
+
+annual_income_label = Label(frame, text="Annual Income: ₹0.00")
+annual_income_label.grid(row=15, column=0, columnspan=2)
+
+tax_label = Label(frame, text="Income Tax: ₹0.00")
+tax_label.grid(row=17, column=0, columnspan=2)
+
+
+root.mainloop()
+\
